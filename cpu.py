@@ -31,6 +31,7 @@ class CPU:
         self.branchTable[0b00010001] = self.handle_ret
         self.branchTable[0b10100000] = self.handle_add
         self.branchTable[0b10100111] = self.handle_cmp
+        self.branchTable[0b01010100] = self.handle_jmp
         # set CPU running
         self.running = False
 
@@ -171,26 +172,14 @@ class CPU:
 
     # CALL: jump to a different part of the program, a defined subroutine
     def handle_call(self, operand_a, operand_b):
-        # self.reg[self.sp] -= 1
-        # self.ram[self.reg[self.sp]] = self.pc + 2
-        # register = self.ram[self.pc + 1]
-        # reg_value = self.reg[register]
-        # self.pc = reg_value
-        # print(f'I got here to call function')
         # get to the next line that would store the next line that needs to be ex
         self.reg[self.sp] -= 1
-        # print(f'move stack pointer down')
         self.ram_write(self.reg[self.sp], (self.pc + 2))
-        # print(f'write into ram the number(+2) after the program and register')
         # set the PC to the value given after CALL was commanded
         self.pc = self.reg[operand_a]
-        # print(f'set the program counter to the value from register provided under call')
 
     # RET: PC is set to the subroutine return address
     def handle_ret(self, operand_a, operand_b):
-        # return_value = self.ram[self.reg[self.sp]]
-        # self.reg[self.sp] += 1
-        # self.pc = return_value
         # pop the current value from the stack
         return_address = self.ram_read(self.reg[self.sp])
         # increment the stack pointer (move back up the stack)
@@ -207,6 +196,10 @@ class CPU:
     def handle_cmp(self, operand_a, operand_b):
         self.alu("CMP", operand_a, operand_b)
         self.pc += 3
+
+    # JMP: set the PC to the address stored in the given register
+    def handle_jmp(self, operand_a, operand_b):
+        self.pc = self.reg[operand_a]
 
     def run(self):
         # start the program
