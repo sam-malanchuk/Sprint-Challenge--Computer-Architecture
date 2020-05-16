@@ -11,6 +11,8 @@ class CPU:
         self.ram = [0] * 256
         # initiate the program counter
         self.pc = 0
+        # initiate the flag
+        self.fl = 0b00000000
         # initiate the registery to take 8 bits
         self.reg = [0] * 8
         # reserve Registry 7 for Stack Address pointer
@@ -28,6 +30,7 @@ class CPU:
         self.branchTable[0b01010000] = self.handle_call
         self.branchTable[0b00010001] = self.handle_ret
         self.branchTable[0b10100000] = self.handle_add
+        self.branchTable[0b10100111] = self.handle_cmp
         # set CPU running
         self.running = False
 
@@ -93,6 +96,16 @@ class CPU:
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "DIV":
             self.reg[reg_a] /= self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.fl = 0b00000100
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.fl = 0b00000010
+            elif self.reg[reg_a] == self.reg[reg_b]:
+                self.fl = 0b00000001
+            else:
+                raise Exception("registers not set correctly")
+                
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -188,6 +201,11 @@ class CPU:
     # ADD: get the sum of the two register values specified, save in the first
     def handle_add(self, operand_a, operand_b):
         self.alu("ADD", operand_a, operand_b)
+        self.pc += 3
+
+    # CMP: compare the first and second register given and set the flag appropriately
+    def handle_cmp(self, operand_a, operand_b):
+        self.alu("CMP", operand_a, operand_b)
         self.pc += 3
 
     def run(self):
