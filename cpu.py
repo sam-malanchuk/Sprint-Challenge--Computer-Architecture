@@ -34,6 +34,13 @@ class CPU:
         self.branchTable[0b01010100] = self.handle_jmp
         self.branchTable[0b01010101] = self.handle_jeq
         self.branchTable[0b01010110] = self.handle_jne
+        self.branchTable[0b10101000] = self.handle_and
+        self.branchTable[0b10101010] = self.handle_or
+        self.branchTable[0b10101011] = self.handle_xor
+        self.branchTable[0b01101001] = self.handle_not
+        self.branchTable[0b10101100] = self.handle_shl
+        self.branchTable[0b10101101] = self.handle_shr
+        self.branchTable[0b10100100] = self.handle_mod
         # set CPU running
         self.running = False
 
@@ -108,7 +115,20 @@ class CPU:
                 self.fl = 0b00000001
             else:
                 raise Exception("registers not set correctly")
-                
+        elif op == "AND":
+            self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
+        elif op == "OR":
+            self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
+        elif op == "XOR":
+            self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
+        elif op == "NOT":
+            self.reg[reg_a] = ~self.reg[reg_a]
+        elif op == "SHL":
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
+        elif op == "SHR":
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
+        elif op == "MOD":
+            self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -216,6 +236,41 @@ class CPU:
             self.pc = self.reg[operand_a]
         else:
             self.pc += 2
+
+    # AND: perform AND operation on two registers and save in the first one
+    def handle_and(self, operand_a, operand_b):
+        self.alu("AND", operand_a, operand_b)
+        self.pc += 3
+
+    # OR: perform OR operation on two registers and save in the first one
+    def handle_or(self, operand_a, operand_b):
+        self.alu("OR", operand_a, operand_b)
+        self.pc += 3
+
+    # XOR: perform XOR operation on two registers and save in the first one
+    def handle_xor(self, operand_a, operand_b):
+        self.alu("XOR", operand_a, operand_b)
+        self.pc += 3
+
+    # NOT: perform NOT operation on a register and overwrite with result
+    def handle_not(self, operand_a, operand_b):
+        self.alu("NOT", operand_a, operand_b)
+        self.pc += 2
+
+    # SHL: Shift the value in first register left by amout specified in the second.
+    def handle_shl(self, operand_a, operand_b):
+        self.alu("SHL", operand_a, operand_b)
+        self.pc += 3
+
+    # SHR: Shift the value in first register right by amout specified in the second.
+    def handle_shr(self, operand_a, operand_b):
+        self.alu("SHR", operand_a, operand_b)
+        self.pc += 3
+
+    # MOD: Divide first register by second storing the remainder in the first.
+    def handle_mod(self, operand_a, operand_b):
+        self.alu("MOD", operand_a, operand_b)
+        self.pc += 3
 
     def run(self):
         # start the program
