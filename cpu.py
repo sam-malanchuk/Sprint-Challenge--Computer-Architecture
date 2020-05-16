@@ -32,6 +32,8 @@ class CPU:
         self.branchTable[0b10100000] = self.handle_add
         self.branchTable[0b10100111] = self.handle_cmp
         self.branchTable[0b01010100] = self.handle_jmp
+        self.branchTable[0b01010101] = self.handle_jeq
+        self.branchTable[0b01010110] = self.handle_jne
         # set CPU running
         self.running = False
 
@@ -200,6 +202,20 @@ class CPU:
     # JMP: set the PC to the address stored in the given register
     def handle_jmp(self, operand_a, operand_b):
         self.pc = self.reg[operand_a]
+
+    # JEQ: if flag is set to one then jump to the address at the given register
+    def handle_jeq(self, operand_a, operand_b):
+        if self.fl == 0b00000001:
+            self.pc = self.reg[operand_a]
+        else:
+            self.pc += 2
+
+    # JNE: if flag equal is not equal then jump to the address at the given register
+    def handle_jne(self, operand_a, operand_b):
+        if self.fl != 0b00000001:
+            self.pc = self.reg[operand_a]
+        else:
+            self.pc += 2
 
     def run(self):
         # start the program
