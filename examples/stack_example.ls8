@@ -1,0 +1,33 @@
+// Memory
+FF: 00
+FE: 00 <- SP
+FD: 00
+FC: 00
+FB: 00
+FA: 00
+F9: 00
+F8: 00
+.
+.
+.
+05: 00
+04: 00
+03: 00
+02: 00
+01: 00
+00: 00 <- PC
+
+Save 12, R1 # save 12 into reg 1
+Push R1 # push value in R1 into stack
+Save 45, R2 # save 45 into reg 1 (overwriting 12)
+PUSH R1 # push value in R1 into stack
+POP R1 # store 45 here
+POP R2 # store 12 here
+ADD R1 R2 # 57
+PUSH R1 # overwrite 45 in reg 1
+
+
+
+
+def add_to_num(a, b):
+  return a + b
